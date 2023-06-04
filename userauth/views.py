@@ -162,6 +162,12 @@ class FollowToggle(APIView):
             status=status.HTTP_200_OK,
         )
 
+class GetAllUsers(APIView):
+    def get(self, request, *args, **kwargs):
+        users = User.objects.all()
+        return Response({
+            "body": UserSerializer(users, many=True).data,
+        },status=status.HTTP_200_OK)
 
 # class OthersProfilePage(APIView):
 #     def get(self, request, *args, **kwargs):

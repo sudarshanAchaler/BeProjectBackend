@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Post
 import humanize
+from datetime import timedelta
 
 class PostSerializer(serializers.ModelSerializer):
     author_name = serializers.SerializerMethodField()
@@ -10,7 +11,7 @@ class PostSerializer(serializers.ModelSerializer):
     userliked = serializers.SerializerMethodField()
     class Meta:
         model = Post
-        fields = ["author","body","media", "likes", "id","author_name","author_profile_picture_url","author_username","humanizedTime","userliked"]
+        fields = ["author","body","media", "likes", "id","author_name","author_profile_picture_url","author_username","humanizedTime","userliked", "positve","negative","neutral","compound"]
 
     def get_author_name(self,obj):
         return obj.author.first_name + " " + obj.author.last_name
@@ -22,7 +23,8 @@ class PostSerializer(serializers.ModelSerializer):
         return obj.author.username
     
     def get_humanizedTime(self,obj):
-        return humanize.naturaltime(obj.created_on.replace(tzinfo=None))
+        time = obj.created_on 
+        return humanize.naturaltime(time.replace(tzinfo=None))
     
     def get_userliked(self,obj):
         return True

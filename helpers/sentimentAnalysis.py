@@ -1,24 +1,14 @@
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+import pickle
+from django.conf import settings
+import os
 
-#calculate the negative, positive, neutral and compound scores, plus verbal evaluation
-def GetSentiment(sentence):
+def getSentiment(sentence):
+    # Load the sentiment analysis model from a pickle file
+    model_path = os.path.join(settings.BASE_DIR, 'helpers/SentimentAnalysis.pickle')
+    with open(model_path, 'rb') as f:
+        model = pickle.load(f)
 
-    # Create a SentimentIntensityAnalyzer object.
-    sid_obj = SentimentIntensityAnalyzer()
+    # Predict the sentiment of the sentence using the loaded model
+    negative,positive,neutral,compound,overall_sentiment = model.predict([sentence])
 
-    sentiment_dict = sid_obj.polarity_scores(sentence)
-    negative = sentiment_dict['neg']
-    neutral = sentiment_dict['neu']
-    positive = sentiment_dict['pos']
-    compound = sentiment_dict['compound']
-
-    if sentiment_dict['compound'] >= 0.05 :
-        overall_sentiment = "Positive"
-
-    elif sentiment_dict['compound'] <= - 0.05 :
-        overall_sentiment = "Negative"
-
-    else :
-        overall_sentiment = "Neutral"
-  
-    return overall_sentiment
+    return negative,positive,neutral,compound,overall_sentiment 

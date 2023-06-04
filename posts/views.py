@@ -6,7 +6,7 @@ from userauth.serializers import UserSerializer
 from .serializers import PostSerializer, PostCreateSerializer
 from django.contrib.auth import get_user_model
 from helpers.s3 import uploadPostImage
-from helpers.sentimentAnalysis import GetSentiment
+from helpers.sa import GetSentiment
 
 User = get_user_model()
 
@@ -58,11 +58,7 @@ class PostAPI(APIView):
         serializer = PostCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         if body:
-            sentiment = GetSentiment(body)
-            if sentiment == "Negative":
-                return Response({
-                    "error":"Cannot post a negative comment"
-                }, status=status.HTTP_400_BAD_REQUEST)
+            negative,positive,neutral,compound,sentiment = GetSentiment(body)
         if media:
             err,imgUrl = uploadPostImage(media,media.name)
             if err:
@@ -72,7 +68,7 @@ class PostAPI(APIView):
             post = serializer.save(author=requestor, media=imgUrl)
         
         else:
-            post = serializer.save(author=requestor)
+            post = serializer.save(author=requestor,positve=positive*100,negative=negative*100, neutral=neutral*100, compound=compound)
 
         return Response({
             "post":PostSerializer(post).data
@@ -87,3 +83,14 @@ class PostAPI(APIView):
             
 
         
+
+class DeletePost(APIView):
+    def delete(self,request,*args,**kwargs):
+        post_id = kwargs.get("id")
+        try:
+            post = Post.objects.get(id=post_id)
+            post.delete()
+            return Response(status=status.HTTP_200_OK)
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+

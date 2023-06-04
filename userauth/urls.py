@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import RegistrationAPI, LoginAPI, AddUserImages, UpdateCoverPicture, UpdateProfilePicture, UpdateUser, FollowToggle
+from .views import RegistrationAPI, LoginAPI, AddUserImages, UpdateCoverPicture, UpdateProfilePicture, UpdateUser, FollowToggle, GetAllUsers
 from posts.views import MyProfile, OthersProfilePage
 
 urlpatterns = [
@@ -11,5 +11,6 @@ urlpatterns = [
     path("updateCoverPicture/",UpdateCoverPicture.as_view() ),
     path("updateUser/",UpdateUser.as_view() ),
     path("profile/<str:username>/follow/", FollowToggle.as_view()),
-    path("profile/<str:username>/", OthersProfilePage.as_view())
+    path("profile/<str:username>/", OthersProfilePage.as_view()),
+    path("users/", GetAllUsers.as_view() )
 ]
